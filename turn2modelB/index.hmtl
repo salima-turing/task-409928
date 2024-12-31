@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edge Computing with Web Worker</title>
+</head>
+<body>
+    <script>
+        if (typeof (Worker) !== 'undefined') {
+            const worker = new Worker('edge_device_worker.js');
+
+            function sendDataToWorker(data) {
+                worker.postMessage(data);
+            }
+
+            // Simulate data sending
+            setInterval(() => {
+                const data = `Sensor reading at ${new Date().toISOString()}`;
+                console.log(`Sending data to worker: ${data}`);
+                sendDataToWorker(data);
+            }, 2000);
+
+            worker.onmessage = function(event) {
+                const { status, data, reason } = event.data;
+                console.log(`Message from worker: ${status} - ${data}`, reason ? reason : '');
+            };
+
+            worker.onerror = function(event) {
+                console.error('Worker Error:', event.message);
+            };
+
+        } else {
+            console.error('Web Workers are not supported in your browser.');
+        }
+    </script>
+</body>
+</html>
